@@ -14,13 +14,24 @@ import { CreateQuizAttemptDto } from './dto/create-quiz-attempt.dto';
 import { UpdateQuizAttemptDto } from './dto/update-quiz-attempt.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    email: string;
+    roles: string[];
+  };
+}
+
 @Controller('quiz-attempts')
 @UseGuards(JwtAuthGuard)
 export class QuizAttemptsController {
   constructor(private readonly quizAttemptsService: QuizAttemptsService) {}
 
   @Post()
-  create(@Body() createQuizAttemptDto: CreateQuizAttemptDto, @Request() req) {
+  create(
+    @Body() createQuizAttemptDto: CreateQuizAttemptDto,
+    @Request() req: RequestWithUser,
+  ) {
     return this.quizAttemptsService.create({
       ...createQuizAttemptDto,
       userId: req.user.id,
@@ -28,12 +39,12 @@ export class QuizAttemptsController {
   }
 
   @Get()
-  findAll(@Request() req) {
+  findAll(@Request() req: RequestWithUser) {
     return this.quizAttemptsService.findAll(req.user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req) {
+  findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
     return this.quizAttemptsService.findOne(id, req.user.id);
   }
 
@@ -41,7 +52,7 @@ export class QuizAttemptsController {
   update(
     @Param('id') id: string,
     @Body() updateQuizAttemptDto: UpdateQuizAttemptDto,
-    @Request() req,
+    @Request() req: RequestWithUser,
   ) {
     return this.quizAttemptsService.update(
       id,
@@ -51,7 +62,7 @@ export class QuizAttemptsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req) {
+  remove(@Param('id') id: string, @Request() req: RequestWithUser) {
     return this.quizAttemptsService.remove(id, req.user.id);
   }
 }
