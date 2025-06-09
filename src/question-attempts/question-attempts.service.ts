@@ -4,20 +4,53 @@ import { Repository } from 'typeorm';
 import { QuestionAttempt } from './entities/question-attempt.entity';
 import { CreateQuestionAttemptDto } from './dto/create-question-attempt.dto';
 import { UpdateQuestionAttemptDto } from './dto/update-question-attempt.dto';
+import { Answer } from '../answers/entities/answer.entity';
+import { Question } from '../questions/entities/question.entity';
 
 @Injectable()
 export class QuestionAttemptsService {
   constructor(
     @InjectRepository(QuestionAttempt)
     private questionAttemptsRepository: Repository<QuestionAttempt>,
+    @InjectRepository(Answer)
+    private answersRepository: Repository<Answer>,
+    @InjectRepository(Question)
+    private questionsRepository: Repository<Question>,
   ) {}
 
   async create(
     createQuestionAttemptDto: CreateQuestionAttemptDto,
   ): Promise<QuestionAttempt> {
-    const questionAttempt = this.questionAttemptsRepository.create(
-      createQuestionAttemptDto,
-    );
+    // Fetch the selected answer and question
+    const answer = await this.answersRepository.findOne({
+      where: { id: createQuestionAttemptDto.selectedAnswerId },
+    });
+    if (!answer) {
+      throw new NotFoundException('Selected answer not found');
+    }
+    const question = await this.questionsRepository.findOne({
+      where: { id: createQuestionAttemptDto.questionId },
+    });
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
+
+    // Evaluate correctness
+    const isCorrect = answer.isCorrect;
+    // Assign score if correct, else 0
+    const score = isCorrect ? question.points : 0;
+    // Set answeredAt
+    const answeredAt = new Date();
+
+    // Create the attempt
+    const questionAttempt = this.questionAttemptsRepository.create({
+      ...createQuestionAttemptDto,
+      selectedAnswer: answer,
+      question: question,
+      isCorrect,
+      score,
+      answeredAt,
+    });
     return this.questionAttemptsRepository.save(questionAttempt);
   }
 

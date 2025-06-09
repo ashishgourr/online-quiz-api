@@ -5,10 +5,12 @@ import { QuestionAttemptsController } from './question-attempts.controller';
 import { QuestionAttempt } from './entities/question-attempt.entity';
 import { QuestionsModule } from '../questions/questions.module';
 import { QuizAttemptsModule } from '../quiz-attempts/quiz-attempts.module';
+import { Answer } from '../answers/entities/answer.entity';
+import { Question } from '../questions/entities/question.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([QuestionAttempt]),
+    TypeOrmModule.forFeature([QuestionAttempt, Answer, Question]),
     QuestionsModule,
     QuizAttemptsModule,
   ],

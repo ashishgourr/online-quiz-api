@@ -2,7 +2,8 @@ import { IsUUID, IsOptional, IsNumber, IsDate } from 'class-validator';
 
 export class CreateQuizAttemptDto {
   @IsUUID()
-  userId: string;
+  @IsOptional()
+  userId?: string;
 
   @IsUUID()
   quizId: string;

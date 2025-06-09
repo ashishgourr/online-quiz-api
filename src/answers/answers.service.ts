@@ -10,6 +10,7 @@ import { Answer } from './entities/answer.entity';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { QuestionsService } from '../questions/questions.service';
+import { AnswerResponseDto } from './dto/answer-response.dto';
 
 @Injectable()
 export class AnswersService {
@@ -72,5 +73,17 @@ export class AnswersService {
     return this.answersRepository.find({
       where: { question: { id: questionId } },
     });
+  }
+
+  async findByQuestionForUser(
+    questionId: string,
+  ): Promise<AnswerResponseDto[]> {
+    const answers = await this.findByQuestion(questionId);
+    return answers.map((answer) => ({
+      id: answer.id,
+      text: answer.text,
+      createdAt: answer.createdAt,
+      updatedAt: answer.updatedAt,
+    }));
   }
 }

@@ -15,20 +15,23 @@ export class QuizAttemptsService {
   async create(
     createQuizAttemptDto: CreateQuizAttemptDto,
   ): Promise<QuizAttempt> {
-    const quizAttempt =
-      this.quizAttemptsRepository.create(createQuizAttemptDto);
+    const quizAttempt = this.quizAttemptsRepository.create({
+      ...createQuizAttemptDto,
+      startedAt: new Date(),
+    });
     return this.quizAttemptsRepository.save(quizAttempt);
   }
 
-  async findAll(): Promise<QuizAttempt[]> {
+  async findAll(userId: string): Promise<QuizAttempt[]> {
     return this.quizAttemptsRepository.find({
+      where: { user: { id: userId } },
       relations: ['user', 'quiz', 'questionAttempts'],
     });
   }
 
-  async findOne(id: string): Promise<QuizAttempt> {
+  async findOne(id: string, userId: string): Promise<QuizAttempt> {
     const quizAttempt = await this.quizAttemptsRepository.findOne({
-      where: { id },
+      where: { id, user: { id: userId } },
       relations: ['user', 'quiz', 'questionAttempts'],
     });
 
@@ -42,14 +45,15 @@ export class QuizAttemptsService {
   async update(
     id: string,
     updateQuizAttemptDto: UpdateQuizAttemptDto,
+    userId: string,
   ): Promise<QuizAttempt> {
-    const quizAttempt = await this.findOne(id);
+    const quizAttempt = await this.findOne(id, userId);
     Object.assign(quizAttempt, updateQuizAttemptDto);
     return this.quizAttemptsRepository.save(quizAttempt);
   }
 
-  async remove(id: string): Promise<void> {
-    const quizAttempt = await this.findOne(id);
+  async remove(id: string, userId: string): Promise<void> {
+    const quizAttempt = await this.findOne(id, userId);
     await this.quizAttemptsRepository.remove(quizAttempt);
   }
 }

@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../users/enums/role.enum';
+import { AnswerResponseDto } from './dto/answer-response.dto';
 
 @ApiTags('answers')
 @Controller('answers')
@@ -43,6 +44,7 @@ export class AnswersController {
   }
 
   @Get()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Get all answers' })
   @ApiResponse({
     status: 200,
@@ -54,6 +56,7 @@ export class AnswersController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Get an answer by id' })
   @ApiResponse({ status: 200, description: 'Return the answer.', type: Answer })
   findOne(@Param('id') id: string): Promise<Answer> {
@@ -65,10 +68,12 @@ export class AnswersController {
   @ApiResponse({
     status: 200,
     description: 'Return all answers for the question.',
-    type: [Answer],
+    type: [AnswerResponseDto],
   })
-  findByQuestion(@Param('questionId') questionId: string): Promise<Answer[]> {
-    return this.answersService.findByQuestion(questionId);
+  findByQuestion(
+    @Param('questionId') questionId: string,
+  ): Promise<AnswerResponseDto[]> {
+    return this.answersService.findByQuestionForUser(questionId);
   }
 
   @Patch(':id')
