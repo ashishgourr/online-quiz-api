@@ -22,7 +22,7 @@ A robust RESTful API built with NestJS for managing online quizzes, questions, a
 1. Clone the repository:
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/ashishgourr/online-quiz-api.git
 cd online-quiz-api
 ```
 
